@@ -1,4 +1,4 @@
-obj-m += main.o
+obj-m += keylogger.o
 
 PWD := $(CURDIR)
 
