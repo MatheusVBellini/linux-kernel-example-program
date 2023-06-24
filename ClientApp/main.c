@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 #include "client.h"
 
 // receive desired IP address and PORT from command line as well as optional output file

@@ -6,7 +6,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-void initialize_socket(int *sockfd, struct sockaddr_in *server_addr, char *ip, int port);
-void usage_warning(char *program_name);
+void initialize_socket(int *sockfd, struct sockaddr_in *server_addr, const char *ip, int port);
+void usage_warning(const char *program_name);
 
 #endif
