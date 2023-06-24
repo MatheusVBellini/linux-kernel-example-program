@@ -1,4 +1,4 @@
-obj-m = teste.o
+obj-m = video_test.o
 KVERSION = $(shell uname -r)
 all:
 	make -C /lib/modules/$(KVERSION)/build M=$(PWD) modules
