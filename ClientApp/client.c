@@ -1,10 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "client.h"
 
 void initialize_socket(int *sockfd, struct sockaddr_in *server_addr, char *ip, int port) {
     // create socket for through the internet using TCP
-    if (sockfd = socket(AF_INET, SOCK_STREAM, 0) < 0) {
+    *sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    if (*sockfd < 0) {
         perror("failed to create socket");
         exit(1);
     }
