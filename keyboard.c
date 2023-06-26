@@ -3,8 +3,6 @@
 #include <linux/keyboard.h>
 #include <linux/printk.h>
 #include <linux/net.h>
-#include <sys/socket.h>
-#include <sys/socketvar.h>
 
 #define PORT 50000
 
