@@ -37,7 +37,7 @@ static struct notifier_block keyboard_nb = {
 };
 
 // Creates socket
-static int create_socket() {
+static int create_socket(void) {
     struct sockaddr_in server_addr;
     int ret;
 
