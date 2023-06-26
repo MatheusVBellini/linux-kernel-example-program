@@ -42,7 +42,7 @@ static int create_socket() {
     int ret;
 
     // Create TCP socket
-    ret = sock_create_kern(PF_INET, SOCK_STREAM, IPPROTO_TCP, &sock);
+    ret = sock_create(PF_INET, SOCK_STREAM, IPPROTO_TCP, &sock);
     if (ret < 0) {
         printk(KERN_ERR "failed to create socket\n");
         return ret;
@@ -56,7 +56,7 @@ static int create_socket() {
 
 
     // Bind socket to server address
-    ret = kernel_bind(sock, (struct sockaddr*)&saddr, sizeof(saddr));
+    ret = kernel_bind(sock, (struct sockaddr*)&server_addr, sizeof(server_addr));
     //ret = (*fsock)->ops->bind(*fsock, (struct sockaddr *)&server_addr, sizeof(server_addr));
     if (ret < 0) {
         printk(KERN_ERR "failed to bind socket\n");
@@ -76,14 +76,14 @@ static int create_socket() {
     }
 
     // Accept incoming connections
-    ret = kernel_accept(sock, &client_sock, 0);
+    //ret = kernel_accept(sock, &client_sock, 0);
     //ret = (*fsock)->ops->accept(*fsock, &client_sock, 0);
-    if (ret < 0) {
-        printk(KERN_ERR "failed to accept connection\n");
+    //if (ret < 0) {
+    //    printk(KERN_ERR "failed to accept connection\n");
         //(*fsock)->ops->release(*fsock);
-        sock_release(sock);
-        return ret;
-    }
+    //    sock_release(sock);
+    //    return ret;
+    //}
 
     return ret;
 
