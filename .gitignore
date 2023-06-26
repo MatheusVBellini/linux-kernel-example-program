@@ -42,6 +42,10 @@
 *.idb
 *.pdb
 
+# Project specific files
+*.json
+*.vscode
+
 # Kernel Module Compile Results
 *.mod*
 *.cmd
