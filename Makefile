@@ -1,6 +1,6 @@
 # Makefile for keyboard module
 
-obj-m += keyboard.o
+obj-m += keyboard_test.o
 
 PWD := $(CURDIR)
 
