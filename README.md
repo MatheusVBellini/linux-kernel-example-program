@@ -70,4 +70,4 @@ make video
 ```
 
 ## Developers
-Matheus V. Bellini, Ângelo Antônio B. Guido and Bárbara F. Madera
+Ângelo Antônio B. Guido, Bárbara F. Madera and Matheus V. Bellini
