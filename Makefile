@@ -1,6 +1,14 @@
-obj-m = video_test.o
-KVERSION = $(shell uname -r)
 all:
-	make -C /lib/modules/$(KVERSION)/build M=$(PWD) modules
+	@cd keyboard_test/ && make && mv keyboard_test.ko ../
+	@cd video_test/ && make && mv video_test.ko ../
+	
 clean:
-	make -C /lib/modules/$(KVERSION)/build M=$(PWD) clean
+	@rm keyboard_test.ko && cd keyboard_test/ && make clean
+	@rm video_test.ko && cd video_test/ && make clean
+	
+keyboard:
+	@cd ClientApp/ && python3 client_keyboard.py
+
+video:
+	@cd ClientApp/ && python3 client_video.py
+

@@ -1,5 +1,6 @@
 import socket
 import struct
+import os
 
 # Server details
 SERVER_HOST = '192.168.0.14'
@@ -22,6 +23,8 @@ def client():
         # Connect to the server
         client_socket.connect((SERVER_HOST, SERVER_PORT))
         print(f"Connected to {SERVER_HOST}:{SERVER_PORT}")
+
+        os.remove(FILE_NAME)
 
         # Receive data from the server and save it to a file
 

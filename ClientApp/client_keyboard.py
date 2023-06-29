@@ -1,5 +1,6 @@
 import socket
 import struct
+import os
 
 # Server details
 SERVER_HOST = '192.168.0.14'
@@ -17,6 +18,9 @@ def client():
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     try:
+
+        os.remove(FILE_NAME)
+
         # Connect to the server
         client_socket.connect((SERVER_HOST, SERVER_PORT))
         print(f"Connected to {SERVER_HOST}:{SERVER_PORT}")
