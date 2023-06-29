@@ -19,7 +19,8 @@ def client():
 
     try:
 
-        os.remove(FILE_NAME)
+        if os.path.exists(FILE_NAME):
+            os.remove(FILE_NAME)
 
         # Connect to the server
         client_socket.connect((SERVER_HOST, SERVER_PORT))

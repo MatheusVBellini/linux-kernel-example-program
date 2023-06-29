@@ -24,25 +24,23 @@ def client():
         client_socket.connect((SERVER_HOST, SERVER_PORT))
         print(f"Connected to {SERVER_HOST}:{SERVER_PORT}")
 
-        os.remove(FILE_NAME)
+        if os.path.exists(FILE_NAME):
+            os.remove(FILE_NAME)
 
         # Receive data from the server and save it to a file
 
         while True:
-            received_data = b''
+            received_data = bytes()
             bytes_received = 0
 
-            while bytes_received < VIDEO_MEMORY_SIZE:
-                chunk = client_socket.recv(min(VIDEO_MEMORY_SIZE - bytes_received, 1024))
-                print(len(chunk))
-                if not chunk:
-                    break
-                received_data += chunk
-                bytes_received += len(chunk)
+            chunk = client_socket.recv(VIDEO_MEMORY_SIZE)
+            received_data += chunk
+            bytes_received += len(chunk)
 
             # Unpack the received data
             unpacked_data = struct.unpack('B' * bytes_received, received_data)
             save_to_file(unpacked_data)
+            save_to_file("SNAPSHOT")
 
     except ConnectionRefusedError:
         print("The server is not available.")
