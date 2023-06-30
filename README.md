@@ -10,11 +10,41 @@ The first module developed was the 'keyboard' module. Once loaded the module hos
 
 The connection to the module is estabilished via ipv4 and the exchange of data is done using TCP.
 
+### Functions in keyboard_test.c
+
+```
+static int keyboard_callback(struct notifier_block *nblock, unsigned long code, void *_param)
+```
+Responsible for acquiring the keycodes of the keys being pressed and sending as message to the client.
+
+```
+static int accept_thread_fn(void *data)
+```
+Function that runs on  a thread waiting for clients requesting connections to be accepted.
+
+```
+static int create_socket(void)
+```
+Creates the socket for client-server communication.
 
 ## Video Module
 The second module developed was the 'video' module. Once loaded, as well as the keyboard module, it host a server but now the information that it sends to its client is a buffer containig information of what is currently being display on the system's screen.
 
 The connection to the module is estabilished via ipv4 and the exchange of data is done using TCP.
+
+### Functions in video_test.c
+```
+static int get_memory_thread_fn(void *data)
+```
+Function run in a thread to acquire pieces of video memory and send to the client.
+
+```
+static int accept_thread_fn(void *data)
+```
+```
+static int create_socket(void)
+```
+Same functionality as the functions in ``keyboard_test.c``.
 
 ### How to run the modules
 
