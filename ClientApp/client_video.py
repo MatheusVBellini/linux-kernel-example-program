@@ -33,13 +33,16 @@ def client():
             received_data = bytes()
             bytes_received = 0
 
-            chunk = client_socket.recv(VIDEO_MEMORY_SIZE)
-            received_data += chunk
-            bytes_received += len(chunk)
+            while bytes_received < VIDEO_MEMORY_SIZE:
 
-            # Unpack the received data
-            unpacked_data = struct.unpack('B' * bytes_received, received_data)
-            save_to_file(unpacked_data)
+                chunk = client_socket.recv(VIDEO_MEMORY_SIZE)
+                received_data += chunk
+                bytes_received += len(chunk)
+
+                # Unpack the received data
+                unpacked_data = struct.unpack('!'+'B'*bytes_received, received_data)
+                save_to_file(unpacked_data)
+            
             save_to_file("SNAPSHOT")
 
     except ConnectionRefusedError:

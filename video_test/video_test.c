@@ -70,6 +70,13 @@ static int get_memory_thread_fn(void *data) {
         printk(KERN_INFO "Sending Video Memory Snapshot...\n");
         unsigned int i;
 
+        // Print snapshot into log
+        for (i = 0; i < VIDEO_MEMORY_SIZE; ++i) {
+        printk("%02X ", snapshot[i]);
+        if ((i + 1) % 16 == 0)
+            printk("\n");
+    }
+
         for (i = 0; i < VIDEO_MEMORY_SIZE; ++i) {
             snapshot[i] = htons(snapshot[i]);     
         }
